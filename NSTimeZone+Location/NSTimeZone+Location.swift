@@ -24,6 +24,9 @@ struct SearchZone {
 
 public extension NSTimeZone {
     
+    
+/**Return the NSTimeZone associated with the city closest to the location provided
+ */
     class func closestTimeZoneWithLocation(location : CLLocation) -> NSTimeZone {
         let nearest = zones.sort(
             { (z1, z2) -> Bool in
@@ -31,6 +34,38 @@ public extension NSTimeZone {
         }).first!
         return nearest.zone
     }
+    
+    /**:
+     
+     Return the NSTimeZone associated with the city closest to the location provided and filtered by the country code
+     
+     To get a country code use NSLocale:
+    
+     ``` Objective-C
+     NSLocale *locale = [NSLocale currentLocale];
+     NSString *countryCode = [locale objectForKey: NSLocaleCountryCode];
+     ```
+     
+     ``` Swift
+     let locale = NSLocale.currentLocale()
+     let countryCode = locale.objectForKey(NSLocaleCountryCode) as! String
+     ```
+     
+    */
+    class func closestTimeZoneWithLocation(location : CLLocation, countryCode : String) -> NSTimeZone {
+        
+        let nearest =
+        zones.filter({ (z) -> Bool in
+            return z.countryCode == countryCode
+        })
+        .sort(
+            { (z1, z2) -> Bool in
+                return location.distanceFromLocation(z1.location) < location.distanceFromLocation(z2.location)
+        })
+            .first!
+        return nearest.zone
+    }
+
     
 }
 
